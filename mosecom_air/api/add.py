@@ -2,7 +2,7 @@
 
 from django.db import transaction, IntegrityError
 
-from api.models import Substance, Station, Unit, Measurement
+from mosecom_air.api.models import Substance, Station, Unit, Measurement
 
 def add_station(name, alias):
     try:

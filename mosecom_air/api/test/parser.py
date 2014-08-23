@@ -5,10 +5,10 @@ import os
 from datetime import datetime
 from django.test import TestCase
 
-from api.parser import Result, Substance, Measurement
-from api.html_parser import parse as parse_html
-from api.json_parser import parse as parse_json
 from mosecom_air.settings import BASE_DIR
+from mosecom_air.api.parser import Result, Substance, Measurement
+from mosecom_air.api.html_parser import parse as parse_html
+from mosecom_air.api.json_parser import parse as parse_json
 
 class Parser(TestCase):
     VALID_SOURCE = None

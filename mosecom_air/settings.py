@@ -2,19 +2,22 @@
 
 import os
 import sys
+import yaml
 
+CONFIG_FILE = '/etc/mosecom-air.conf'
+CONFIG = yaml.load(open(CONFIG_FILE))
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-SECRET_KEY = 'j5-eRz6L2_NjVJr_Qb9YcfqXdDh5nh5WCjhNYSjF47D__Yrt!1H_Peg3zt!75xbofcRFfYjEhqF47ZDJDf-sAi4AxhUFIQLcei-3LwIL7t1rRhJcYfwn8TU!5rSTYWSh'
-DEBUG = True
-TEMPLATE_DEBUG = True
-ALLOWED_HOSTS = []
+SECRET_KEY = CONFIG['secret_key']
+DEBUG = CONFIG['debug']
+TEMPLATE_DEBUG = CONFIG['template_debug']
+ALLOWED_HOSTS = CONFIG['allowed_hosts']
 
 INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api',
+    'mosecom_air.api',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -40,11 +43,11 @@ else:
     DATABASES = {
         'default': {
             'ENGINE':'django.db.backends.postgresql_psycopg2',
-            'NAME': 'mosecom_air',
-            'USER': 'mosecom_air',
-            'PASSWORD': 'oKzO-9s4kcvZNqV9',
-            'HOST': '127.0.0.1',
-            'PORT': '5432',
+            'NAME': CONFIG['database']['name'],
+            'USER': CONFIG['database']['user'],
+            'PASSWORD': CONFIG['database']['password'],
+            'HOST': CONFIG['database']['host'],
+            'PORT': CONFIG['database']['port'],
         }
     }
 

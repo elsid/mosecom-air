@@ -4,7 +4,7 @@ import simplejson as json
 
 from dateutil.parser import parse as parse_datetime
 
-from api.parser import Substance, Measurement, Result
+from mosecom_air.api.parser import Substance, Measurement, Result
 
 def make_measurements(data):
     return [Measurement(

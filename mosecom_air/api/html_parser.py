@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 from pyquery import PyQuery
 
-from api.parser import Substance, Measurement, Result
+from mosecom_air.api.parser import Substance, Measurement, Result
 
 SUBSTANCE_RE = re.compile(r'^(?P<name>\S*)(?:\s*\((?P<alias>.*?)\))?')
 STATION_ALIAS_RE = re.compile(ur'«(?P<alias>[^»]*)»')
