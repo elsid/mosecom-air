@@ -9,6 +9,7 @@ from django import forms
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer, BaseRenderer
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from mosecom_air import settings
 
@@ -18,11 +19,15 @@ from mosecom_air.api.models import *
 from mosecom_air.api.update import update as update_data
 
 class InvalidForm(StandardError):
-    pass
+    MESSAGE = 'invalid request parameters'
+
+    def __init__(self, errors):
+        self.errors = dict(errors)
+        super(InvalidForm, self).__init__(self.MESSAGE)
 
 def validate_form(form):
     if not form.is_valid():
-        raise InvalidForm('invalid request parameters')
+        raise InvalidForm(form.errors)
     return form
 
 class PlainTextRenderer(BaseRenderer):
@@ -132,7 +137,8 @@ def measurements(request):
             } for performed, value in reduced]
         return Response(result)
     except InvalidForm as error:
-        return HttpResponseBadRequest(str(error), content_type='text/plain')
+        return Response({'message': str(error), 'errors': error.errors},
+                        status=HTTP_400_BAD_REQUEST)
     except ObjectDoesNotExist as error:
         return HttpResponseNotFound(str(error), content_type='text/plain')
     except Exception as error:
