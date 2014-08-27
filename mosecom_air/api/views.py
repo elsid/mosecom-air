@@ -73,9 +73,6 @@ def units(request):
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
-class SubstanceAliasForm(forms.Form):
-    name = forms.CharField()
-
 def mean(values):
     summa = 0
     length = 0
