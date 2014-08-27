@@ -41,8 +41,7 @@ def ping(request):
 @renderer_classes((JSONRenderer,))
 def stations(request):
     try:
-        return Response([{'name': station.name, 'alias': station.alias}
-            for station in Station.objects.all()])
+        return Response(dict((v.name, v.alias) for v in Station.objects.all()))
     except Exception as error:
         if settings.DEBUG:
             raise
@@ -52,8 +51,8 @@ def stations(request):
 @renderer_classes((JSONRenderer,))
 def substances(request):
     try:
-        return Response([{'name': substance.name, 'alias': substance.alias}
-            for substance in Substance.objects.all()])
+        return Response(dict((v.name, v.alias)
+                             for v in Substance.objects.all()))
     except Exception as error:
         if settings.DEBUG:
             raise
@@ -63,8 +62,7 @@ def substances(request):
 @renderer_classes((JSONRenderer,))
 def units(request):
     try:
-        return Response([{'name': unit.id, 'alias': unit.name}
-            for unit in Unit.objects.all()])
+        return Response(dict((v.id, v.name) for v in Unit.objects.all()))
     except Exception as error:
         if settings.DEBUG:
             raise
