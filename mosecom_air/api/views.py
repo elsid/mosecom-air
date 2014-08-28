@@ -86,7 +86,7 @@ def substances(request, station=None):
 @renderer_classes((JSONRenderer,))
 def units(request):
     try:
-        return Response(dict((v.id, v.name) for v in Unit.objects.all()))
+        return Response(dict(Unit.objects.values_list()))
     except Exception as error:
         if settings.DEBUG:
             raise
