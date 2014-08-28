@@ -11,4 +11,6 @@ urlpatterns = patterns('',
     url(r'^substances$', views.substances, name='substances'),
     url(r'^units$', views.units, name='units'),
     url(r'^update$', views.update, name='update'),
+    url(r'^stations/(?P<substance>.*)$', views.stations,
+        name='stations_filtered_by_substance'),
 )

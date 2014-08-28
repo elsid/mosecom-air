@@ -44,9 +44,18 @@ def ping(request):
 
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def stations(request):
+def stations(request, substance=None):
     try:
-        return Response(dict((v.name, v.alias) for v in Station.objects.all()))
+        if substance is None:
+            stations = Station.objects.all()
+        else:
+            substance = Substance.objects.get(name=substance)
+            stations_ids = (Measurement.objects.filter(substance=substance)
+                .distinct('station').values_list('station', flat=True))
+            stations = Station.objects.filter(id__in=stations_ids)
+        return Response(dict(stations.values_list('name', 'alias')))
+    except ObjectDoesNotExist as error:
+        return HttpResponseNotFound(str(error), content_type='text/plain')
     except Exception as error:
         if settings.DEBUG:
             raise
