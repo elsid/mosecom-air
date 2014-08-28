@@ -6,6 +6,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import (HttpResponseServerError, HttpResponseBadRequest,
     HttpResponseNotFound)
 from django import forms
+from django.db.models import Min, Max
+
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer, BaseRenderer
 from rest_framework.response import Response
@@ -183,6 +185,20 @@ def add(request):
         data = form.cleaned_data
         add_data(data['station'], parse_json(data['json_data']))
         return Response('done')
+    except Exception as error:
+        if settings.DEBUG:
+            raise
+        return HttpResponseServerError(str(error), content_type='text/plain')
+
+@api_view(('GET',))
+@renderer_classes((JSONRenderer,))
+def interval(request):
+    try:
+        interval = Measurement.objects.aggregate(start=Min('performed'),
+                                                 finish=Max('performed'))
+        return Response(interval)
+    except ObjectDoesNotExist as error:
+        return HttpResponseNotFound(str(error), content_type='text/plain')
     except Exception as error:
         if settings.DEBUG:
             raise
