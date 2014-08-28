@@ -63,10 +63,18 @@ def stations(request, substance=None):
 
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def substances(request):
+def substances(request, station=None):
     try:
-        return Response(dict((v.name, v.alias)
-                             for v in Substance.objects.all()))
+        if station is None:
+            substances = Substance.objects.all()
+        else:
+            station = Station.objects.get(name=station)
+            substances_ids = (Measurement.objects.filter(station=station)
+                .distinct('substance').values_list('substance', flat=True))
+            substances = Substance.objects.filter(id__in=substances_ids)
+        return Response(dict(substances.values_list('name', 'alias')))
+    except ObjectDoesNotExist as error:
+        return HttpResponseNotFound(str(error), content_type='text/plain')
     except Exception as error:
         if settings.DEBUG:
             raise

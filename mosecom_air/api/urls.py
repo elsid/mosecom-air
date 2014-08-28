@@ -13,4 +13,6 @@ urlpatterns = patterns('',
     url(r'^update$', views.update, name='update'),
     url(r'^stations/(?P<substance>.*)$', views.stations,
         name='stations_filtered_by_substance'),
+    url(r'^substances/(?P<station>.*)$', views.substances,
+        name='substances_filtered_by_station'),
 )
