@@ -7,6 +7,7 @@ from django.http import (HttpResponseServerError, HttpResponseBadRequest,
     HttpResponseNotFound)
 from django import forms
 from django.db.models import Min, Max
+from django.views.decorators.gzip import gzip_page
 
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer, BaseRenderer
@@ -44,6 +45,7 @@ class PlainTextRenderer(BaseRenderer):
 def ping(request):
     return Response('pong')
 
+@gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
 def stations(request, substance=None):
@@ -63,6 +65,7 @@ def stations(request, substance=None):
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
+@gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
 def substances(request, station=None):
@@ -82,6 +85,7 @@ def substances(request, station=None):
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
+@gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
 def units(request):
@@ -124,6 +128,7 @@ class MeasurementsForm(forms.Form):
     finish = forms.DateTimeField()
     function = forms.ChoiceField(choices=FUNCTIONS)
 
+@gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
 def measurements(request):
@@ -162,6 +167,7 @@ def measurements(request):
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
+@gzip_page
 @api_view(('GET',))
 @renderer_classes((PlainTextRenderer,))
 def update(request):
@@ -177,6 +183,7 @@ class AddForm(forms.Form):
     station = forms.CharField()
     json_data = forms.CharField()
 
+@gzip_page
 @api_view(('POST',))
 @renderer_classes((PlainTextRenderer,))
 def add(request):
@@ -190,6 +197,7 @@ def add(request):
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
+@gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
 def interval(request):
