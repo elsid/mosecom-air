@@ -1,16 +1,12 @@
 #coding: utf-8
 
-import logging
-
 from multiprocessing import Process
 
 from html_source import HtmlSource, RequestError
 from html_parser import parse as parse_html
 from mosecom_air.api.add import add as add_data
 
-logger = logging.getLogger('api.update')
-
-def update():
+def update(logger):
     source = HtmlSource()
     for station_name in source.get_stations_list():
         try:

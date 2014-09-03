@@ -10,6 +10,7 @@ py2dsc $NAME-$VERSION.tar.gz &&
 cd deb_dist/mosecom-air-$VERSION &&
 sed -i 's/Package: python-mosecom-air/Package: mosecom-air/' debian/control &&
 sed -i 's/python-all/python/' debian/control &&
+sed -iE 's/Depends:.*/\0, libossp-uuid-perl/' debian/control &&
 echo '
 override_dh_auto_install:
 	python setup.py install --root=debian/mosecom-air --install-layout=deb \

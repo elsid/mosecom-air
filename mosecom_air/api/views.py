@@ -20,6 +20,7 @@ from mosecom_air.api.add import add as add_data
 from mosecom_air.api.json_parser import parse as parse_json
 from mosecom_air.api.models import *
 from mosecom_air.api.update import update as update_data
+from mosecom_air.api.log import make_logger
 
 class InvalidForm(StandardError):
     MESSAGE = 'invalid request parameters'
@@ -167,12 +168,13 @@ def measurements(request):
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
+@make_logger
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((PlainTextRenderer,))
-def update(request):
+def update(request, logger):
     try:
-        update_data()
+        update_data(logger)
         return Response('done')
     except Exception as error:
         if settings.DEBUG:
