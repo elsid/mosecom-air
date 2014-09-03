@@ -41,4 +41,7 @@ mkdir -p /var/log/nginx/mosecom-air && {
 	true
 }
 ' > debian/postinst &&
+echo '
+/etc/init.d/mosecom-air stop
+' > debian/prerm &&
 debuild
