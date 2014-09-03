@@ -211,3 +211,14 @@ def interval(request):
         if settings.DEBUG:
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
+
+@gzip_page
+@api_view(('GET',))
+@renderer_classes((JSONRenderer,))
+def functions(request):
+    try:
+        return Response(dict(MeasurementsForm.FUNCTIONS).keys())
+    except Exception as error:
+        if settings.DEBUG:
+            raise
+        return HttpResponseServerError(str(error), content_type='text/plain')
