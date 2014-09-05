@@ -36,6 +36,7 @@ else:
             'PASSWORD': CONFIG['database']['password'],
             'HOST': CONFIG['database']['host'],
             'PORT': CONFIG['database']['port'],
+            'JOHNNY_CACHE_KEY': 'default',
         }
     }
 
@@ -68,5 +69,18 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO',
         },
+    }
+}
+
+MIDDLEWARE_CLASSES = (
+    'johnny.middleware.QueryCacheMiddleware',
+)
+
+CACHES = {
+    'default': {
+        'BACKEND': 'johnny.backends.memcached.MemcachedCache',
+        'LOCATION': CONFIG['cache']['location'],
+        'TIMEOUT':  CONFIG['cache']['timeout'],
+        'JOHNNY_CACHE': True,
     }
 }

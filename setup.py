@@ -17,6 +17,7 @@ setup(
         'django >= 1.6.1',
         'djangorestframework >= 2.3.12',
         'flup >= 1.0.2',
+        'johnny-cache >= 1.4',
         'psycopg2 >= 2.4.5',
         'pyquery >= 1.2.4',
         'simplejson >= 3.3.1',
