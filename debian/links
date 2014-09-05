@@ -1,0 +1,5 @@
+/usr/share/mosecom-air/bin/manage.py /usr/bin/mosecom-air-manage
+/usr/share/mosecom-air/bin/request.py /usr/bin/mosecom-air-request
+/usr/share/mosecom-air/bin/parse_html.py /usr/bin/mosecom-air-parse-html
+/usr/share/mosecom-air/etc/nginx.conf /etc/nginx/conf.d/mosecom-air.conf
+/usr/share/mosecom-air/etc/init.sh /etc/init.d/mosecom-air

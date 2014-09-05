@@ -1,0 +1,6 @@
+mkdir -p /var/log/mosecom-air &&
+mkdir -p /var/log/nginx/mosecom-air && {
+	/etc/init.d/mosecom-air stop
+	/etc/init.d/mosecom-air start
+	true
+}

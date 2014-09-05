@@ -1,0 +1,2 @@
+etc/init.sh /usr/share/mosecom-air/etc
+etc/nginx.conf /usr/share/mosecom-air/etc
