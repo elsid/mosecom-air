@@ -8,6 +8,7 @@ from django.http import (HttpResponseServerError, HttpResponseBadRequest,
 from django import forms
 from django.db.models import Min, Max
 from django.views.decorators.gzip import gzip_page
+from django.views.decorators.cache import cache_page
 
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer, BaseRenderer
@@ -21,6 +22,8 @@ from mosecom_air.api.json_parser import parse as parse_json
 from mosecom_air.api.models import *
 from mosecom_air.api.update import update as update_data
 from mosecom_air.api.log import make_logger
+
+cache_page = cache_page(settings.CACHES['default']['TIMEOUT'])
 
 class InvalidForm(StandardError):
     MESSAGE = 'invalid request parameters'
@@ -46,6 +49,7 @@ class PlainTextRenderer(BaseRenderer):
 def ping(request):
     return Response('pong')
 
+@cache_page
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
@@ -66,6 +70,7 @@ def stations(request, substance=None):
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
+@cache_page
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
@@ -86,6 +91,7 @@ def substances(request, station=None):
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
+@cache_page
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
@@ -129,6 +135,7 @@ class MeasurementsForm(forms.Form):
     finish = forms.DateTimeField()
     function = forms.ChoiceField(choices=FUNCTIONS)
 
+@cache_page
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
@@ -199,6 +206,7 @@ def add(request):
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
+@cache_page
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
@@ -214,6 +222,7 @@ def interval(request):
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
+@cache_page
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
