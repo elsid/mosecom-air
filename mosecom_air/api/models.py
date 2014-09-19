@@ -20,3 +20,8 @@ class Measurement(models.Model):
     value = models.FloatField()
     performed = models.DateTimeField()
     written = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        index_together = [
+            ['station', 'substance', 'unit', 'performed']
+        ]
