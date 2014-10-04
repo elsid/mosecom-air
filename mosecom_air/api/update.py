@@ -13,6 +13,8 @@ def update(logger):
             html = source.get_station_html(station_name)
             data = parse_html(html)
             add_data(station_name, data)
-            logger.info('result=[success] station=[%s]', station_name)
+            logger.info('action=[update] result=[success] station=[%s]',
+                station_name)
         except RequestError as error:
-            logger.error('result=[fail] station=[%s] %s', station_name, error)
+            logger.error('action=[update] result=[fail] station=[%s] %s',
+                station_name, error)
