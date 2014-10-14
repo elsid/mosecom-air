@@ -203,7 +203,7 @@ def update(request, logger):
         update_data(logger)
         return Response('done')
     except Exception as error:
-        logger.error('reason=[%s]', station_name, error)
+        logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
