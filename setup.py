@@ -6,7 +6,7 @@ from os.path import join, dirname
 
 setup(
     name='mosecom_air',
-    version='1.4.1',
+    version='1.5',
     description='Web service dedicated to air pollution in Moscow.',
     long_description=open('README.md').read(),
     author='elsid',
