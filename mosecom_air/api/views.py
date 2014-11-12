@@ -44,16 +44,24 @@ class PlainTextRenderer(BaseRenderer):
     def render(self, data, media_type=None, renderer_context=None):
         return str(data).encode(self.charset)
 
+@make_logger
 @api_view(('GET',))
 @renderer_classes((PlainTextRenderer,))
-def ping(request):
-    return Response('pong')
+def ping(request, logger):
+    try:
+        return Response('pong')
+    except Exception as error:
+        logger.error('reason=[%s]', error)
+        if settings.DEBUG:
+            raise
+        return HttpResponseServerError(str(error), content_type='text/plain')
 
+@make_logger
 @cache_page
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def stations(request, substance=None):
+def stations(request, logger, substance=None):
     try:
         if substance is None:
             stations = Station.objects.all()
@@ -64,17 +72,20 @@ def stations(request, substance=None):
             stations = Station.objects.filter(id__in=stations_ids)
         return Response(dict(stations.values_list('name', 'alias')))
     except ObjectDoesNotExist as error:
+        logger.warning('reason=[%s]', error)
         return HttpResponseNotFound(str(error), content_type='text/plain')
     except Exception as error:
+        logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
+@make_logger
 @cache_page
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def substances(request, station=None):
+def substances(request, logger, station=None):
     try:
         if station is None:
             substances = Substance.objects.all()
@@ -85,20 +96,24 @@ def substances(request, station=None):
             substances = Substance.objects.filter(id__in=substances_ids)
         return Response(dict(substances.values_list('name', 'alias')))
     except ObjectDoesNotExist as error:
+        logger.warning('reason=[%s]', error)
         return HttpResponseNotFound(str(error), content_type='text/plain')
     except Exception as error:
+        logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
+@make_logger
 @cache_page
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def units(request):
+def units(request, logger):
     try:
         return Response(dict(Unit.objects.values_list()))
     except Exception as error:
+        logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
@@ -135,11 +150,12 @@ class MeasurementsForm(forms.Form):
     finish = forms.DateTimeField()
     function = forms.ChoiceField(choices=FUNCTIONS)
 
+@make_logger
 @cache_page
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def measurements(request):
+def measurements(request, logger):
     try:
         form = validate_form(MeasurementsForm(request.GET))
         data = form.cleaned_data
@@ -166,11 +182,14 @@ def measurements(request):
             } for performed, value in reduced]
         return Response(result)
     except InvalidForm as error:
+        logger.warning('reason=[%s]', error)
         return Response({'message': str(error), 'errors': error.errors},
                         status=HTTP_400_BAD_REQUEST)
     except ObjectDoesNotExist as error:
+        logger.warning('reason=[%s]', error)
         return HttpResponseNotFound(str(error), content_type='text/plain')
     except Exception as error:
+        logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
@@ -184,6 +203,7 @@ def update(request, logger):
         update_data(logger)
         return Response('done')
     except Exception as error:
+        logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
@@ -192,44 +212,51 @@ class AddForm(forms.Form):
     station = forms.CharField()
     json_data = forms.CharField()
 
+@make_logger
 @gzip_page
 @api_view(('POST',))
 @renderer_classes((PlainTextRenderer,))
-def add(request):
+def add(request, logger):
     try:
         form = validate_form(AddForm(request.POST))
         data = form.cleaned_data
         add_data(data['station'], parse_json(data['json_data']))
         return Response('done')
     except Exception as error:
+        logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
+@make_logger
 @cache_page
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def interval(request):
+def interval(request, logger):
     try:
         interval = Measurement.objects.aggregate(start=Min('performed'),
                                                  finish=Max('performed'))
         return Response(interval)
     except ObjectDoesNotExist as error:
+        logger.warning('reason=[%s]', error)
         return HttpResponseNotFound(str(error), content_type='text/plain')
     except Exception as error:
+        logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
 
+@make_logger
 @cache_page
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def functions(request):
+def functions(request, logger):
     try:
         return Response(dict(MeasurementsForm.FUNCTIONS).keys())
     except Exception as error:
+        logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
         return HttpResponseServerError(str(error), content_type='text/plain')
