@@ -48,6 +48,10 @@ USE_TZ = False
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/'
 
+DATETIME_INPUT_FORMATS = (
+    '%Y-%m-%d', '%Y-%m-%dT%H', '%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'
+)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

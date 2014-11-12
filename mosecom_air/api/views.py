@@ -146,8 +146,8 @@ class MeasurementsForm(forms.Form):
     station = forms.CharField()
     substance = forms.CharField()
     unit = forms.IntegerField()
-    start = forms.DateTimeField()
-    finish = forms.DateTimeField()
+    start = forms.DateTimeField(input_formats=settings.DATETIME_INPUT_FORMATS)
+    finish = forms.DateTimeField(input_formats=settings.DATETIME_INPUT_FORMATS)
     function = forms.ChoiceField(choices=FUNCTIONS)
 
 @make_logger
