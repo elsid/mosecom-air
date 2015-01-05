@@ -23,5 +23,6 @@ class Measurement(models.Model):
 
     class Meta:
         index_together = [
-            ['station', 'substance', 'unit', 'performed']
+            ['station', 'substance', 'unit', 'performed'],
+            ['station', 'substance'],
         ]

@@ -63,12 +63,12 @@ def ping(request, logger):
 @renderer_classes((JSONRenderer,))
 def stations(request, logger, substance=None):
     try:
-        if substance is None:
-            stations = Station.objects.all()
-        else:
+        stations = Station.objects.all()
+        if substance is not None:
             substance = Substance.objects.get(name=substance)
-            stations_ids = (Measurement.objects.filter(substance=substance)
-                .distinct('station').values_list('station', flat=True))
+            stations_ids = [station.id for station in stations
+                if (Measurement.objects.filter(substance=substance,
+                    station=station).exists())]
             stations = Station.objects.filter(id__in=stations_ids)
         return Response(dict(stations.values_list('name', 'alias')))
     except ObjectDoesNotExist as error:
@@ -87,12 +87,12 @@ def stations(request, logger, substance=None):
 @renderer_classes((JSONRenderer,))
 def substances(request, logger, station=None):
     try:
-        if station is None:
-            substances = Substance.objects.all()
-        else:
+        substances = Substance.objects.all()
+        if station is not None:
             station = Station.objects.get(name=station)
-            substances_ids = (Measurement.objects.filter(station=station)
-                .distinct('substance').values_list('substance', flat=True))
+            substances_ids = [substance.id for substance in substances
+                if (Measurement.objects.filter(substance=substance,
+                    station=station).exists())]
             substances = Substance.objects.filter(id__in=substances_ids)
         return Response(dict(substances.values_list('name', 'alias')))
     except ObjectDoesNotExist as error:
