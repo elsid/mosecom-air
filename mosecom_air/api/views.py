@@ -1,6 +1,7 @@
 #coding: utf-8
 
 import simplejson as json
+import urllib
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import (HttpResponseServerError, HttpResponseBadRequest,
@@ -65,6 +66,7 @@ def stations(request, logger, substance=None):
     try:
         stations = Station.objects.all()
         if substance is not None:
+            substance = urllib.unquote(substance.encode('utf-8')).decode('utf-8')
             substance = Substance.objects.get(name=substance)
             stations_ids = [station.id for station in stations
                 if (Measurement.objects.filter(substance=substance,
