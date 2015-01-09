@@ -25,7 +25,7 @@ def select_substances(query):
         match = SUBSTANCE_RE.search(header)
         if not match:
             raise ParseSubstanceHeaderError("header doesn't match regexp")
-        return Substance(name=match.group('name'),
+        return Substance(name=match.group('name').replace('PM25', 'PM2.5'),
             alias=match.group('alias') or '')
 
     result = []
