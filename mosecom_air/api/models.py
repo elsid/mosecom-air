@@ -29,4 +29,5 @@ class Measurement(models.Model):
         index_together = [
             ['station', 'substance', 'unit', 'performed'],
             ['station', 'substance'],
+            ['performed'],
         ]
