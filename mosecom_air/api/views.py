@@ -224,6 +224,10 @@ def add(request, logger):
         data = form.cleaned_data
         add_data(data['station'], parse_json(data['json_data']))
         return Response('done')
+    except InvalidForm as error:
+        logger.warning('reason=[%s]', error)
+        return Response({'message': str(error), 'errors': error.errors},
+                        status=HTTP_400_BAD_REQUEST)
     except Exception as error:
         logger.error('reason=[%s]', error)
         if settings.DEBUG:
