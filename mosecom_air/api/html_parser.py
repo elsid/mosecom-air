@@ -7,7 +7,7 @@ from pyquery import PyQuery
 
 from mosecom_air.api.parser import Substance, Measurement, Result
 
-SUBSTANCE_RE = re.compile(r'^(?P<name>\S*)(?:\s*\((?P<alias>.*?)\))?')
+SUBSTANCE_RE = re.compile(r'^(?P<name>[^\s_]*)(?:\s*\((?P<alias>.*?)\))?')
 STATION_ALIAS_RE = re.compile(ur'«(?P<alias>[^»]*)»')
 FULL_DATETIME_FORMAT = '%d.%m.%Y %H:%M'
 SHORT_DATETIME_FORMAT = '%H:%M'
