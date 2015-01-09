@@ -243,6 +243,14 @@ def interval(request, logger):
             raise
         return Response({'status': 'error', 'message': str(error)})
 
+FUNCTIONS = {
+    'first': 'Первое',
+    'last': 'Последнее',
+    'max': 'Максимальное',
+    'mean': 'Среднее',
+    'min': 'Минимальное',
+}
+
 @make_logger
 @cache_page
 @gzip_page
@@ -250,7 +258,7 @@ def interval(request, logger):
 @renderer_classes((JSONRenderer,))
 def functions(request, logger):
     try:
-        return Response(dict(MeasurementsForm.FUNCTIONS).keys())
+        return Response(FUNCTIONS)
     except Exception as error:
         logger.error('reason=[%s]', error)
         if settings.DEBUG:
