@@ -1,19 +1,17 @@
 #coding: utf-8
 
 import simplejson as json
+import urllib
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import (HttpResponseServerError, HttpResponseBadRequest,
-    HttpResponseNotFound)
 from django import forms
 from django.db.models import Min, Max
 from django.views.decorators.gzip import gzip_page
 from django.views.decorators.cache import cache_page
 
 from rest_framework.decorators import api_view, renderer_classes
-from rest_framework.renderers import JSONRenderer, BaseRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from mosecom_air import settings
 
@@ -37,24 +35,17 @@ def validate_form(form):
         raise InvalidForm(form.errors)
     return form
 
-class PlainTextRenderer(BaseRenderer):
-    media_type = 'text/plain'
-    format = 'txt'
-
-    def render(self, data, media_type=None, renderer_context=None):
-        return str(data).encode(self.charset)
-
 @make_logger
 @api_view(('GET',))
-@renderer_classes((PlainTextRenderer,))
+@renderer_classes((JSONRenderer,))
 def ping(request, logger):
     try:
-        return Response('pong')
+        return Response({'status': 'ok'})
     except Exception as error:
         logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
-        return HttpResponseServerError(str(error), content_type='text/plain')
+        return Response({'status': 'error', 'message': str(error)})
 
 @make_logger
 @cache_page
@@ -63,22 +54,23 @@ def ping(request, logger):
 @renderer_classes((JSONRenderer,))
 def stations(request, logger, substance=None):
     try:
-        if substance is None:
-            stations = Station.objects.all()
-        else:
+        stations = Station.objects.all()
+        if substance is not None:
+            substance = urllib.unquote(substance.encode('utf-8')).decode('utf-8')
             substance = Substance.objects.get(name=substance)
-            stations_ids = (Measurement.objects.filter(substance=substance)
-                .distinct('station').values_list('station', flat=True))
+            stations_ids = [station.id for station in stations
+                if (Measurement.objects.filter(substance=substance,
+                    station=station).exists())]
             stations = Station.objects.filter(id__in=stations_ids)
         return Response(dict(stations.values_list('name', 'alias')))
     except ObjectDoesNotExist as error:
         logger.warning('reason=[%s]', error)
-        return HttpResponseNotFound(str(error), content_type='text/plain')
+        return Response({'status': 'error', 'message': str(error)})
     except Exception as error:
         logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
-        return HttpResponseServerError(str(error), content_type='text/plain')
+        return Response({'status': 'error', 'message': str(error)})
 
 @make_logger
 @cache_page
@@ -87,22 +79,22 @@ def stations(request, logger, substance=None):
 @renderer_classes((JSONRenderer,))
 def substances(request, logger, station=None):
     try:
-        if station is None:
-            substances = Substance.objects.all()
-        else:
+        substances = Substance.objects.all()
+        if station is not None:
             station = Station.objects.get(name=station)
-            substances_ids = (Measurement.objects.filter(station=station)
-                .distinct('substance').values_list('substance', flat=True))
+            substances_ids = [substance.id for substance in substances
+                if (Measurement.objects.filter(substance=substance,
+                    station=station).exists())]
             substances = Substance.objects.filter(id__in=substances_ids)
         return Response(dict(substances.values_list('name', 'alias')))
     except ObjectDoesNotExist as error:
         logger.warning('reason=[%s]', error)
-        return HttpResponseNotFound(str(error), content_type='text/plain')
+        return Response({'status': 'error', 'message': str(error)})
     except Exception as error:
         logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
-        return HttpResponseServerError(str(error), content_type='text/plain')
+        return Response({'status': 'error', 'message': str(error)})
 
 @make_logger
 @cache_page
@@ -116,7 +108,7 @@ def units(request, logger):
         logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
-        return HttpResponseServerError(str(error), content_type='text/plain')
+        return Response({'status': 'error', 'message': str(error)})
 
 def mean(values):
     summa = 0
@@ -183,30 +175,30 @@ def measurements(request, logger):
         return Response(result)
     except InvalidForm as error:
         logger.warning('reason=[%s]', error)
-        return Response({'message': str(error), 'errors': error.errors},
-                        status=HTTP_400_BAD_REQUEST)
+        return Response({'status': 'error', 'message': str(error),
+            'errors': error.errors})
     except ObjectDoesNotExist as error:
         logger.warning('reason=[%s]', error)
-        return HttpResponseNotFound(str(error), content_type='text/plain')
+        return Response({'status': 'error', 'message': str(error)})
     except Exception as error:
         logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
-        return HttpResponseServerError(str(error), content_type='text/plain')
+        return Response({'status': 'error', 'message': str(error)})
 
 @make_logger
 @gzip_page
 @api_view(('GET',))
-@renderer_classes((PlainTextRenderer,))
+@renderer_classes((JSONRenderer,))
 def update(request, logger):
     try:
         update_data(logger)
-        return Response('done')
+        return Response({'status': 'done'})
     except Exception as error:
         logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
-        return HttpResponseServerError(str(error), content_type='text/plain')
+        return Response({'status': 'error', 'message': str(error)})
 
 class AddForm(forms.Form):
     station = forms.CharField()
@@ -215,18 +207,22 @@ class AddForm(forms.Form):
 @make_logger
 @gzip_page
 @api_view(('POST',))
-@renderer_classes((PlainTextRenderer,))
+@renderer_classes((JSONRenderer,))
 def add(request, logger):
     try:
         form = validate_form(AddForm(request.POST))
         data = form.cleaned_data
         add_data(data['station'], parse_json(data['json_data']))
-        return Response('done')
+        return Response({'status': 'done'})
+    except InvalidForm as error:
+        logger.warning('reason=[%s]', error)
+        return Response({'status': 'error', 'message': str(error),
+            'errors': error.errors})
     except Exception as error:
         logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
-        return HttpResponseServerError(str(error), content_type='text/plain')
+        return Response({'status': 'error', 'message': str(error)})
 
 @make_logger
 @cache_page
@@ -240,12 +236,20 @@ def interval(request, logger):
         return Response(interval)
     except ObjectDoesNotExist as error:
         logger.warning('reason=[%s]', error)
-        return HttpResponseNotFound(str(error), content_type='text/plain')
+        return Response({'status': 'error', 'message': str(error)})
     except Exception as error:
         logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
-        return HttpResponseServerError(str(error), content_type='text/plain')
+        return Response({'status': 'error', 'message': str(error)})
+
+FUNCTIONS = {
+    'first': 'Первое',
+    'last': 'Последнее',
+    'max': 'Максимальное',
+    'mean': 'Среднее',
+    'min': 'Минимальное',
+}
 
 @make_logger
 @cache_page
@@ -254,9 +258,9 @@ def interval(request, logger):
 @renderer_classes((JSONRenderer,))
 def functions(request, logger):
     try:
-        return Response(dict(MeasurementsForm.FUNCTIONS).keys())
+        return Response(FUNCTIONS)
     except Exception as error:
         logger.error('reason=[%s]', error)
         if settings.DEBUG:
             raise
-        return HttpResponseServerError(str(error), content_type='text/plain')
+        return Response({'status': 'error', 'message': str(error)})

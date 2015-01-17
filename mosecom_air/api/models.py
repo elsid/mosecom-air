@@ -1,5 +1,9 @@
 #coding: utf-8
 
+import johnny.cache
+
+johnny.cache.enable()
+
 from django.db import models
 
 class Substance(models.Model):
@@ -23,5 +27,7 @@ class Measurement(models.Model):
 
     class Meta:
         index_together = [
-            ['station', 'substance', 'unit', 'performed']
+            ['station', 'substance', 'unit', 'performed'],
+            ['station', 'substance'],
+            ['performed'],
         ]
