@@ -2,10 +2,9 @@
 
 PORT=13711
 LOG=/var/log/mosecom-air/mosecom-air.log
-PATH=/sbin:/usr/sbin:/bin:/usr/bin:
 DESC="Mosecom air web service"
 NAME=mosecom-air
-PIDFILE=/var/run/$NAME.pid
+PIDFILE=/var/run/mosecom-air/$NAME.pid
 DAEMON=/usr/bin/python
 MANAGE=/usr/bin/mosecom-air-manage
 DAEMON_ARGS="$MANAGE runfcgi method=prefork host=127.0.0.1 port=$PORT \
@@ -17,7 +16,8 @@ SCRIPTNAME=/etc/init.d/$NAME
 
 do_start() {
     ps aux | fgrep $DAEMON | fgrep $MANAGE > /dev/null 2>&1 && return 1
-    $DAEMON $DAEMON_ARGS && [ -f $PIDFILE ] || return 2
+    start-stop-daemon --start --quiet --pidfile $PIDFILE --chuid $NAME \
+        --exec $DAEMON $DAEMON_ARGS || return 2
 }
 
 do_stop() {
