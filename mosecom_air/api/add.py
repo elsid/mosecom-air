@@ -2,7 +2,8 @@
 
 from django.db import transaction, IntegrityError
 
-from mosecom_air.api.models import Substance, Station, Unit, Measurement
+from mosecom_air.api.models import (Substance, Station, Unit, Measurement,
+    StationsWithSubstances)
 
 def add_station(name, alias):
     try:
@@ -45,8 +46,21 @@ def add_measurements(station_name, measurements):
         if measurement.value is not None:
             add_measurement(station, measurement)
 
+def add_stations_substances(station_name, measurements):
+    station = Station.objects.get(name=station_name)
+    for measurement in measurements:
+        if measurement.value is not None:
+            try:
+                StationsWithSubstances(
+                    station=station,
+                    substance=Substance.objects.get(name=measurement.substance)
+                ).save()
+            except IntegrityError:
+                pass
+
 def add(station_name, data):
     add_station(station_name, data.station_alias)
     add_substances(data.substances)
     add_units(data.units)
     add_measurements(station_name, data.measurements)
+    add_stations_substances(station_name, data.measurements)
