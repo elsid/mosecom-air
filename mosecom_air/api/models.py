@@ -4,7 +4,7 @@ import johnny.cache
 
 johnny.cache.enable()
 
-from django.db import models
+from django.db import models, IntegrityError
 
 class Substance(models.Model):
     name = models.TextField(unique=True, db_index=True)
@@ -31,3 +31,11 @@ class Measurement(models.Model):
             ['station', 'substance'],
             ['performed'],
         ]
+
+class StationsWithSubstances(models.Model):
+    station = models.ForeignKey(Station)
+    substance = models.ForeignKey(Substance)
+
+    class Meta:
+        index_together = [('station', 'substance')]
+        unique_together = [('station', 'substance')]

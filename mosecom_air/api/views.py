@@ -58,9 +58,8 @@ def stations(request, logger, substance=None):
         if substance is not None:
             substance = urllib.unquote(substance.encode('utf-8')).decode('utf-8')
             substance = Substance.objects.get(name=substance)
-            stations_ids = [station.id for station in stations
-                if (Measurement.objects.filter(substance=substance,
-                    station=station).exists())]
+            stations_ids = [x.station_id for x in
+                StationsWithSubstances.objects.filter(substance=substance)]
             stations = Station.objects.filter(id__in=stations_ids)
         return Response(dict(stations.values_list('name', 'alias')))
     except ObjectDoesNotExist as error:
@@ -82,9 +81,8 @@ def substances(request, logger, station=None):
         substances = Substance.objects.all()
         if station is not None:
             station = Station.objects.get(name=station)
-            substances_ids = [substance.id for substance in substances
-                if (Measurement.objects.filter(substance=substance,
-                    station=station).exists())]
+            substances_ids = [x.substance_id for x in
+                StationsWithSubstances.objects.filter(station=station)]
             substances = Substance.objects.filter(id__in=substances_ids)
         return Response(dict(substances.values_list('name', 'alias')))
     except ObjectDoesNotExist as error:
