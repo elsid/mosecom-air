@@ -1,4 +1,4 @@
-id -u mosecom-air || useradd -rs /bin/false mosecom-air
+id -u mosecom-air || useradd -rs /usr/sbin/nologin mosecom-air
 mkdir -p /var/log/mosecom-air /var/run/mosecom-air
 chown -R mosecom-air:mosecom-air /var/log/mosecom-air /var/run/mosecom-air
 mkdir -p /var/run/mosecom-air
