@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 
 import os
 import sys
@@ -23,14 +23,14 @@ WSGI_APPLICATION = 'mosecom_air.wsgi.application'
 if 'test' in sys.argv:
     DATABASES = {
         'default': {
-            'ENGINE':'django.db.backends.sqlite3',
+            'ENGINE': 'django.db.backends.sqlite3',
             'NAME': 'test_mosecom_air',
         }
     }
 else:
     DATABASES = {
         'default': {
-            'ENGINE':'django.db.backends.postgresql_psycopg2',
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': CONFIG['database']['name'],
             'USER': CONFIG['database']['user'],
             'PASSWORD': CONFIG['database']['password'],

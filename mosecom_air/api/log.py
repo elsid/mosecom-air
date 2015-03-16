@@ -1,14 +1,17 @@
-#coding: utf-8
+# coding: utf-8
 
 import logging
 
+
 class RequestFilter(logging.Filter):
     def __init__(self, uuid):
+        super(RequestFilter, self).__init__()
         self.uuid = uuid
 
     def filter(self, record):
         record.uuid = self.uuid
         return True
+
 
 def make_logger(func):
     def wrapper(request, *args, **kwargs):
