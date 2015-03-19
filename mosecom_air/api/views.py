@@ -41,7 +41,7 @@ def handle_exception(logger, error):
     logger.error('reason=[%s]', error)
     if settings.DEBUG:
         raise error
-    return Response({'status': 'error', 'message': str(error)})
+    return Response({'status': 'error', 'message': 'internal error'})
 
 
 def handle_object_does_not_exists(logger, error):
