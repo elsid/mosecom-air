@@ -120,6 +120,7 @@ def units(request, logger):
     except Exception as error:
         return handle_exception(logger, error)
 
+
 def mean(values):
     amount = 0
     length = 0
@@ -164,6 +165,13 @@ def measurements(request, logger):
     try:
         form = validate_form(MeasurementsForm(request.GET))
         data = form.cleaned_data
+        max_interval = settings.MAX_MEASUREMENTS_INTERVAL
+        if data['finish'] - data['start'] > max_interval:
+            return Response({
+                'status': 'error',
+                'message': 'requested interval greater than %s hours'
+                           % int(max_interval.total_seconds() / 3600)
+            })
         station = Station.objects.get(name=data['station'])
         substance = Substance.objects.get(name=data['substance'])
         unit = Unit.objects.get(id=data['unit'])

@@ -4,6 +4,8 @@ import os
 import sys
 import yaml
 
+from datetime import timedelta
+
 CONFIG_FILE = '/etc/mosecom-air.conf'
 CONFIG = yaml.load(open(CONFIG_FILE))
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -88,3 +90,5 @@ CACHES = {
         'JOHNNY_CACHE': True,
     }
 }
+
+MAX_MEASUREMENTS_INTERVAL = timedelta(hours=CONFIG['max_measurements_interval'])
