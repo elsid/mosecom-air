@@ -37,6 +37,24 @@ def validate_form(form):
     return form
 
 
+def handle_exception(logger, error):
+    logger.error('reason=[%s]', error)
+    if settings.DEBUG:
+        raise error
+    return Response({'status': 'error', 'message': str(error)})
+
+
+def handle_object_does_not_exists(logger, error):
+    logger.warning('reason=[%s]', error)
+    return Response({'status': 'error', 'message': str(error)})
+
+
+def handle_invalid_form(logger, error):
+    logger.warning('reason=[%s]', error)
+    return Response({'status': 'error', 'message': str(error),
+                     'errors': error.errors})
+
+
 @make_logger
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
@@ -44,10 +62,7 @@ def ping(request, logger):
     try:
         return Response({'status': 'ok'})
     except Exception as error:
-        logger.error('reason=[%s]', error)
-        if settings.DEBUG:
-            raise
-        return Response({'status': 'error', 'message': str(error)})
+        return handle_exception(logger, error)
 
 
 @make_logger
@@ -68,13 +83,9 @@ def stations(request, logger, substance=None):
             stations = Station.objects.filter(id__in=stations_ids)
         return Response(dict(stations.values_list('name', 'alias')))
     except ObjectDoesNotExist as error:
-        logger.warning('reason=[%s]', error)
-        return Response({'status': 'error', 'message': str(error)})
+        return handle_object_does_not_exists(logger, error)
     except Exception as error:
-        logger.error('reason=[%s]', error)
-        if settings.DEBUG:
-            raise
-        return Response({'status': 'error', 'message': str(error)})
+        return handle_exception(logger, error)
 
 
 @make_logger
@@ -93,13 +104,9 @@ def substances(request, logger, station=None):
             substances = Substance.objects.filter(id__in=substances_ids)
         return Response(dict(substances.values_list('name', 'alias')))
     except ObjectDoesNotExist as error:
-        logger.warning('reason=[%s]', error)
-        return Response({'status': 'error', 'message': str(error)})
+        return handle_object_does_not_exists(logger, error)
     except Exception as error:
-        logger.error('reason=[%s]', error)
-        if settings.DEBUG:
-            raise
-        return Response({'status': 'error', 'message': str(error)})
+        return handle_exception(logger, error)
 
 
 @make_logger
@@ -111,11 +118,7 @@ def units(request, logger):
     try:
         return Response(dict(Unit.objects.values_list()))
     except Exception as error:
-        logger.error('reason=[%s]', error)
-        if settings.DEBUG:
-            raise
-        return Response({'status': 'error', 'message': str(error)})
-
+        return handle_exception(logger, error)
 
 def mean(values):
     amount = 0
@@ -185,17 +188,11 @@ def measurements(request, logger):
             } for performed, value in sorted(reduced, key=lambda p: p[0])]
         return Response(result)
     except InvalidForm as error:
-        logger.warning('reason=[%s]', error)
-        return Response({'status': 'error', 'message': str(error),
-                         'errors': error.errors})
+        return handle_invalid_form(logger, error)
     except ObjectDoesNotExist as error:
-        logger.warning('reason=[%s]', error)
-        return Response({'status': 'error', 'message': str(error)})
+        return handle_object_does_not_exists(logger, error)
     except Exception as error:
-        logger.error('reason=[%s]', error)
-        if settings.DEBUG:
-            raise
-        return Response({'status': 'error', 'message': str(error)})
+        return handle_exception(logger, error)
 
 
 @make_logger
@@ -207,10 +204,7 @@ def update(request, logger):
         update_data(logger)
         return Response({'status': 'done'})
     except Exception as error:
-        logger.error('reason=[%s]', error)
-        if settings.DEBUG:
-            raise
-        return Response({'status': 'error', 'message': str(error)})
+        return handle_exception(logger, error)
 
 
 class AddForm(forms.Form):
@@ -229,14 +223,9 @@ def add(request, logger):
         add_data(data['station'], parse_json(data['json_data']))
         return Response({'status': 'done'})
     except InvalidForm as error:
-        logger.warning('reason=[%s]', error)
-        return Response({'status': 'error', 'message': str(error),
-                         'errors': error.errors})
+        return handle_invalid_form(logger, error)
     except Exception as error:
-        logger.error('reason=[%s]', error)
-        if settings.DEBUG:
-            raise
-        return Response({'status': 'error', 'message': str(error)})
+        return handle_exception(logger, error)
 
 
 @make_logger
@@ -250,13 +239,9 @@ def interval(request, logger):
                                                  finish=Max('performed'))
         return Response(interval)
     except ObjectDoesNotExist as error:
-        logger.warning('reason=[%s]', error)
-        return Response({'status': 'error', 'message': str(error)})
+        return handle_object_does_not_exits(logger, error)
     except Exception as error:
-        logger.error('reason=[%s]', error)
-        if settings.DEBUG:
-            raise
-        return Response({'status': 'error', 'message': str(error)})
+        return handle_exception(logger, error)
 
 FUNCTIONS = {
     'first': 'Первое',
@@ -276,7 +261,4 @@ def functions(request, logger):
     try:
         return Response(FUNCTIONS)
     except Exception as error:
-        logger.error('reason=[%s]', error)
-        if settings.DEBUG:
-            raise
-        return Response({'status': 'error', 'message': str(error)})
+        return handle_exception(logger, error)
