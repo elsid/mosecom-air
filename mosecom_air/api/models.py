@@ -1,21 +1,25 @@
-#coding: utf-8
+# coding: utf-8
 
 import johnny.cache
 
 johnny.cache.enable()
 
-from django.db import models, IntegrityError
+from django.db import models
+
 
 class Substance(models.Model):
     name = models.TextField(unique=True, db_index=True)
     alias = models.TextField()
 
+
 class Station(models.Model):
     name = models.TextField(unique=True, db_index=True)
     alias = models.TextField()
 
+
 class Unit(models.Model):
     name = models.TextField(unique=True, db_index=True)
+
 
 class Measurement(models.Model):
     station = models.ForeignKey(Station)
@@ -31,6 +35,7 @@ class Measurement(models.Model):
             ['station', 'substance'],
             ['performed'],
         ]
+
 
 class StationsWithSubstances(models.Model):
     station = models.ForeignKey(Station)

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-#coding: utf-8
+# coding: utf-8
 
 from setuptools import setup, find_packages
 
 setup(
     name='mosecom_air',
-    version='1.8',
+    version='1.9.1',
     description='Web service dedicated to air pollution in Moscow.',
     long_description=open('README.md').read(),
     author='elsid',

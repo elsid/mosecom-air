@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#coding: utf-8
+# coding: utf-8
 
 import simplejson as json
 import sys
@@ -9,15 +9,18 @@ from datetime import datetime
 
 from mosecom_air.api.html_parser import parse
 
+
 def make_args_parser():
     parser = ArgumentParser(description='Parse html with measurements from '
-        + 'mosecom.ru into json')
+                                        'mosecom.ru into json')
     parser.add_argument('file', type=FileType('r'), nargs='?',
-        default=sys.stdin)
+                        default=sys.stdin)
     return parser
+
 
 def parse_args():
     return make_args_parser().parse_args()
+
 
 class DateTimeJSONEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -29,4 +32,4 @@ class DateTimeJSONEncoder(json.JSONEncoder):
 if __name__ == '__main__':
     args = parse_args()
     json.dump(parse(args.file.read()), sys.stdout, cls=DateTimeJSONEncoder,
-        encoding='utf-8')
+              encoding='utf-8')

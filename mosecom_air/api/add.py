@@ -1,9 +1,10 @@
-#coding: utf-8
+# coding: utf-8
 
 from django.db import transaction, IntegrityError
 
-from mosecom_air.api.models import (Substance, Station, Unit, Measurement,
-    StationsWithSubstances)
+from mosecom_air.api.models import (
+    Substance, Station, Unit, Measurement, StationsWithSubstances)
+
 
 def add_station(name, alias):
     try:
@@ -11,15 +12,18 @@ def add_station(name, alias):
     except IntegrityError:
         pass
 
+
 def add_substance(substance):
     try:
         Substance(name=substance.name, alias=substance.alias).save()
     except IntegrityError:
         pass
 
+
 def add_substances(substances):
     for substance in substances:
         add_substance(substance)
+
 
 def add_unit(unit):
     try:
@@ -27,9 +31,11 @@ def add_unit(unit):
     except IntegrityError:
         pass
 
+
 def add_units(units):
     for unit in units:
         add_unit(unit)
+
 
 def add_measurement(station, measurement):
     return Measurement(
@@ -39,12 +45,14 @@ def add_measurement(station, measurement):
         performed=measurement.performed,
         value=measurement.value).save()
 
+
 @transaction.commit_on_success
 def add_measurements(station_name, measurements):
     station = Station.objects.get(name=station_name)
     for measurement in measurements:
         if measurement.value is not None:
             add_measurement(station, measurement)
+
 
 def add_stations_substances(station_name, measurements):
     station = Station.objects.get(name=station_name)
@@ -57,6 +65,7 @@ def add_stations_substances(station_name, measurements):
                 ).save()
             except IntegrityError:
                 pass
+
 
 def add(station_name, data):
     add_station(station_name, data.station_alias)

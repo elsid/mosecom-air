@@ -1,9 +1,10 @@
-#coding: utf-8
+# coding: utf-8
 
 from django.conf.urls import patterns, url
 from mosecom_air.api import views
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^add$', views.add, name='add'),
     url(r'^measurements$', views.measurements, name='measurements'),
     url(r'^ping$', views.ping, name='ping'),

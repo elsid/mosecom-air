@@ -1,8 +1,10 @@
-#coding: utf-8
+# coding: utf-8
 
 import os
 import sys
 import yaml
+
+from datetime import timedelta
 
 CONFIG_FILE = '/etc/mosecom-air.conf'
 CONFIG = yaml.load(open(CONFIG_FILE))
@@ -23,14 +25,14 @@ WSGI_APPLICATION = 'mosecom_air.wsgi.application'
 if 'test' in sys.argv:
     DATABASES = {
         'default': {
-            'ENGINE':'django.db.backends.sqlite3',
+            'ENGINE': 'django.db.backends.sqlite3',
             'NAME': 'test_mosecom_air',
         }
     }
 else:
     DATABASES = {
         'default': {
-            'ENGINE':'django.db.backends.postgresql_psycopg2',
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': CONFIG['database']['name'],
             'USER': CONFIG['database']['user'],
             'PASSWORD': CONFIG['database']['password'],
@@ -88,3 +90,5 @@ CACHES = {
         'JOHNNY_CACHE': True,
     }
 }
+
+MAX_MEASUREMENTS_INTERVAL = timedelta(hours=CONFIG['max_measurements_interval'])
