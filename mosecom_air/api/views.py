@@ -182,7 +182,7 @@ def measurements(request, logger):
             {
                 'performed': performed.isoformat(),
                 'value': value,
-            } for performed, value in reduced]
+            } for performed, value in sorted(reduced, key=lambda p: p[0])]
         return Response(result)
     except InvalidForm as error:
         logger.warning('reason=[%s]', error)
