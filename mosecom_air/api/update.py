@@ -3,6 +3,7 @@
 from html_source import HtmlSource, RequestError
 from html_parser import parse as parse_html
 from mosecom_air.api.add import add as add_data
+from mosecom_air.api.log import make_one_line
 
 
 def update(logger):
@@ -16,4 +17,4 @@ def update(logger):
                         station_name)
         except RequestError as error:
             logger.error('action=[update] result=[fail] station=[%s] %s',
-                         station_name, error)
+                         station_name, make_one_line(error))

@@ -18,7 +18,7 @@ from mosecom_air.api.add import add as add_data
 from mosecom_air.api.json_parser import parse as parse_json
 from mosecom_air.api.models import *
 from mosecom_air.api.update import update as update_data
-from mosecom_air.api.log import make_logger
+from mosecom_air.api.log import make_logger, make_one_line
 
 cache_page = cache_page(settings.CACHES['default']['TIMEOUT'])
 
@@ -38,19 +38,19 @@ def validate_form(form):
 
 
 def handle_exception(logger, error):
-    logger.error('class=[%s] reason=[%s]', type(error), error)
+    logger.error('class=[%s] reason=[%s]', type(error), make_one_line(error))
     if settings.DEBUG:
         raise error
     return Response({'status': 'error', 'message': 'internal error'})
 
 
 def handle_object_does_not_exists(logger, error):
-    logger.warning('class=[%s] reason=[%s]', type(error), error)
+    logger.warning('class=[%s] reason=[%s]', type(error), make_one_line(error))
     return Response({'status': 'error', 'message': str(error)})
 
 
 def handle_invalid_form(logger, error):
-    logger.warning('class=[%s] reason=[%s]', type(error), error)
+    logger.warning('class=[%s] reason=[%s]', type(error), make_one_line(error))
     return Response({'status': 'error', 'message': str(error),
                      'errors': error.errors})
 

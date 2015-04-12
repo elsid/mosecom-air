@@ -13,6 +13,10 @@ class SetUuid(logging.Filter):
         return True
 
 
+def make_one_line(s):
+    return str(s).replace('\n', '\\n').replace('\r', '\\r')
+
+
 def make_logger(func):
     def wrapper(request, *args, **kwargs):
         logger = logging.getLogger('api.request')
