@@ -3,9 +3,9 @@
 import logging
 
 
-class RequestFilter(logging.Filter):
+class SetUuid(logging.Filter):
     def __init__(self, uuid):
-        super(RequestFilter, self).__init__()
+        super(SetUuid, self).__init__()
         self.uuid = uuid
 
     def filter(self, record):
@@ -16,7 +16,7 @@ class RequestFilter(logging.Filter):
 def make_logger(func):
     def wrapper(request, *args, **kwargs):
         logger = logging.getLogger('api.request')
-        logger.addFilter(RequestFilter(request.META['X-Request-UUID']))
+        logger.addFilter(SetUuid(request.META['X-Request-UUID']))
         kwargs['logger'] = logger
         return func(request, *args, **kwargs)
     return wrapper
