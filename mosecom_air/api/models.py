@@ -44,3 +44,9 @@ class StationsWithSubstances(models.Model):
     class Meta:
         index_together = [('station', 'substance')]
         unique_together = [('station', 'substance')]
+
+
+class MonitorExcessLog(models.Model):
+    performed = models.DateTimeField(unique=True, db_index=True)
+    checked = models.DateTimeField(auto_now=True)
+    data = models.TextField()
