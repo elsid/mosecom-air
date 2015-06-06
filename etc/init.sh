@@ -7,7 +7,7 @@ NAME=mosecom-air
 PIDFILE=/var/run/mosecom-air/${NAME}.pid
 DAEMON=/usr/bin/python
 MANAGE=/usr/bin/mosecom-air-manage
-DAEMON_ARGS="${MANAGE} runfcgi method=prefork host=127.0.0.1 port=$PORT \
+DAEMON_ARGS="${MANAGE} runfcgi method=prefork host=127.0.0.1 port=${PORT} \
     pidfile=${PIDFILE} outlog=${LOG} errlog=${LOG}"
 SCRIPTNAME=/etc/init.d/${NAME}
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
