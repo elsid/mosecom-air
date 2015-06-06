@@ -38,19 +38,22 @@ def validate_form(form):
 
 
 def handle_exception(logger, error):
-    logger.error('class=[%s] reason=[%s]', type(error), make_one_line(error))
+    logger.error('class=[%s] reason=[%s]', type(error).__name__,
+                 make_one_line(error))
     if settings.DEBUG:
         raise error
     return Response({'status': 'error', 'message': 'internal error'})
 
 
 def handle_object_does_not_exists(logger, error):
-    logger.warning('class=[%s] reason=[%s]', type(error), make_one_line(error))
+    logger.warning('class=[%s] reason=[%s]', type(error).__name__,
+                   make_one_line(error))
     return Response({'status': 'error', 'message': str(error)})
 
 
 def handle_invalid_form(logger, error):
-    logger.warning('class=[%s] reason=[%s]', type(error), make_one_line(error))
+    logger.warning('class=[%s] reason=[%s]', type(error).__name__,
+                   make_one_line(error))
     return Response({'status': 'error', 'message': str(error),
                      'errors': error.errors})
 
