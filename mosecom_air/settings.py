@@ -58,21 +58,21 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'simple': {
+        'request': {
             'format': '[%(asctime)s] [%(levelname)s] [%(uuid)s]: %(message)s',
             'datefmt': '%Y-%m-%dT%H:%M:%S',
         },
     },
     'handlers': {
-        'console': {
+        'request': {
             'level': 'DEBUG' if DEBUG else 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'request'
         }
     },
     'loggers': {
         'api.request': {
-            'handlers': ['console'],
+            'handlers': ['request'],
             'level': 'DEBUG' if DEBUG else 'INFO',
         },
     }
