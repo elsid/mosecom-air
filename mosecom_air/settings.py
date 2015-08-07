@@ -1,14 +1,14 @@
 # coding: utf-8
 
-import os
-import sys
 import yaml
 
+from os.path import dirname, join
+from sys import argv
 from datetime import timedelta
 
 CONFIG_FILE = '/etc/mosecom-air.conf'
 CONFIG = yaml.load(open(CONFIG_FILE))
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = dirname(__file__)
 SECRET_KEY = CONFIG['secret_key']
 DEBUG = CONFIG['debug']
 TEMPLATE_DEBUG = CONFIG['template_debug']
@@ -22,7 +22,7 @@ INSTALLED_APPS = (
 ROOT_URLCONF = 'mosecom_air.urls'
 WSGI_APPLICATION = 'mosecom_air.wsgi.application'
 
-if 'test' in sys.argv:
+if 'test' in argv:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -47,7 +47,7 @@ TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = False
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = join(BASE_DIR, 'static')
 STATIC_URL = '/'
 
 DATETIME_INPUT_FORMATS = (
@@ -58,21 +58,21 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'simple': {
+        'request': {
             'format': '[%(asctime)s] [%(levelname)s] [%(uuid)s]: %(message)s',
             'datefmt': '%Y-%m-%dT%H:%M:%S',
         },
     },
     'handlers': {
-        'console': {
+        'request': {
             'level': 'DEBUG' if DEBUG else 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'request'
         }
     },
     'loggers': {
         'api.request': {
-            'handlers': ['console'],
+            'handlers': ['request'],
             'level': 'DEBUG' if DEBUG else 'INFO',
         },
     }

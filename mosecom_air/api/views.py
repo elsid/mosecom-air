@@ -181,17 +181,12 @@ def measurements(request, logger):
         measurements = Measurement.objects.filter(
             station=station, substance=substance, unit=unit,
             performed__gte=data['start'], performed__lte=data['finish'])
-
-        def make_apply(function):
-            def _apply(performed):
-                return function((m.value for m in
-                                 measurements.filter(performed=performed)))
-            return _apply
-
         function = dict(form.fields['function'].choices)[data['function']]
-        _apply = make_apply(function)
         performed_unique_values = set((m.performed for m in measurements))
-        reduced = ((p, _apply(p)) for p in performed_unique_values)
+        reduced = (
+            (x, function((m.value for m in measurements.filter(performed=x))))
+            for x in performed_unique_values
+        )
         result = [
             {
                 'performed': performed.isoformat(),
