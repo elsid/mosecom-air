@@ -61,7 +61,7 @@ def handle_invalid_form(logger, error):
 @make_logger
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def ping(request, logger):
+def ping(_, logger):
     try:
         return Response({'status': 'ok'})
     except Exception as error:
@@ -73,7 +73,7 @@ def ping(request, logger):
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def stations(request, logger, substance=None):
+def stations(_, logger, substance=None):
     try:
         stations = Station.objects.all()
         if substance is not None:
@@ -96,7 +96,7 @@ def stations(request, logger, substance=None):
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def substances(request, logger, station=None):
+def substances(_, logger, station=None):
     try:
         substances = Substance.objects.all()
         if station is not None:
@@ -117,7 +117,7 @@ def substances(request, logger, station=None):
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def units(request, logger):
+def units(_, logger):
     try:
         return Response(dict(Unit.objects.values_list()))
     except Exception as error:
@@ -205,7 +205,7 @@ def measurements(request, logger):
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def update(request, logger):
+def update(_, logger):
     try:
         update_data(logger)
         return Response({'status': 'done'})
@@ -239,13 +239,13 @@ def add(request, logger):
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def interval(request, logger):
+def interval(_, logger):
     try:
-        interval = Measurement.objects.aggregate(start=Min('performed'),
-                                                 finish=Max('performed'))
-        return Response(interval)
+        result = Measurement.objects.aggregate(start=Min('performed'),
+                                               finish=Max('performed'))
+        return Response(result)
     except ObjectDoesNotExist as error:
-        return handle_object_does_not_exits(logger, error)
+        return handle_object_does_not_exists(logger, error)
     except Exception as error:
         return handle_exception(logger, error)
 
@@ -263,7 +263,7 @@ FUNCTIONS = {
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def functions(request, logger):
+def functions(_, logger):
     try:
         return Response(FUNCTIONS)
     except Exception as error:

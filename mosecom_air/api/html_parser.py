@@ -31,14 +31,16 @@ def select_substances(query):
         return Substance(name=match.group('name').replace('PM25', 'PM2.5'),
                          alias=match.group('alias') or '')
 
-    result = []
-    for index, header in enumerate(headers):
-        substance = parse_substance_header(header)
-        result.append(substance)
-        repeats = int(query('tr > th:nth-child(%d)' % (index + 2))
-                      .attr('colspan') or 1)
-        result += [substance] * (repeats - 1)
-    return result
+    def impl():
+        for index, header in enumerate(headers):
+            substance = parse_substance_header(header)
+            yield substance
+            repeats = int(query('tr > th:nth-child(%d)' % (index + 2))
+                          .attr('colspan') or 1)
+            for _ in xrange(repeats - 1):
+                yield substance
+
+    return list(impl())
 
 
 def select_units(query):
@@ -75,11 +77,9 @@ def select_measurements(query, substances, units, performed):
             performed=performed[i],
             value=None if value == u'—' else float(value))
 
-    result = []
-    (query('tr').filter(lambda i: i >= 2).map(
-        lambda i, v: (PyQuery(v)('td').filter(lambda j: j >= 1)).each(
-            lambda j, v: result.append(make_measurement(i, j, v)))))
-    return result
+    return list(query('tr').filter(lambda i: i >= 2).map(
+        lambda i, x: (PyQuery(x)('td').filter(lambda j: j >= 1)).map(
+            lambda j, y: make_measurement(i, j, y))))
 
 
 def select_station_alias(query):

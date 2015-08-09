@@ -1,7 +1,6 @@
 # coding: utf-8
 
-import os
-
+from os.path import join
 from httplib import HTTPConnection, OK
 from pyquery import PyQuery
 
@@ -19,13 +18,17 @@ class HtmlSource(object):
     STATION_URL_PREFIX = '/air/air-today/station/'
     TABLE = 'table.html'
 
-    def __init__(self, host=None, user_agent=None):
-        self.headers = {'User-Agent': user_agent or self.USER_AGENT}
-        self.__connection = HTTPConnection(host or self.HOST)
+    def __init__(self, logger=None, host=None, user_agent=None):
+        self.headers = {'User-Agent': (user_agent if user_agent is not None
+                                       else self.USER_AGENT)}
+        self.__logger = logger
+        self.__host = host if host is not None else self.HOST
 
     def request(self, url):
-        self.__connection.request('GET', url, headers=self.headers)
-        response = self.__connection.getresponse()
+        conn = HTTPConnection(self.__host)
+        conn.request('GET', url, headers=self.headers)
+        response = conn.getresponse()
+        self._log(url, response)
         if response.status != OK:
             raise RequestError('reason=[request error] url=[%s] status=[%d]'
                                % (url, response.status))
@@ -39,5 +42,9 @@ class HtmlSource(object):
                     .map(lambda i, v: v.replace(self.STATION_URL_PREFIX, '')))
 
     def get_station_html(self, station):
-        return self.request(self.STATION_URL_PREFIX
-                            + os.path.join(station, self.TABLE))
+        return self.request(join(self.STATION_URL_PREFIX, station, self.TABLE))
+
+    def _log(self, url, response):
+        if self.__logger:
+            self.__logger.info('action=[request] host=[%s] url=[%s] '
+                               'status=[%s]', self.__host, url, response.status)
