@@ -19,8 +19,10 @@ class HtmlSource(object):
     TABLE = 'table.html'
 
     def __init__(self, host=None, user_agent=None):
-        self.headers = {'User-Agent': user_agent or self.USER_AGENT}
-        self.__connection = HTTPConnection(host or self.HOST)
+        self.headers = {'User-Agent': (user_agent if user_agent is not None
+                                       else self.USER_AGENT)}
+        self.__connection = HTTPConnection(host if host is not None
+                                           else self.HOST)
 
     def request(self, url):
         self.__connection.request('GET', url, headers=self.headers)
