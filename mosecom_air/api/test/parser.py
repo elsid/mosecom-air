@@ -63,14 +63,14 @@ class Parser(TestCase):
 
 
 class HtmlParser(Parser):
-    VALID_SOURCE = os.path.join(BASE_DIR, 'mosecom_air/api/test/valid.html')
+    VALID_SOURCE = os.path.join(BASE_DIR, 'api/test/valid.html')
 
     def parse(self, html):
         return parse_html(html)
 
 
 class JsonParser(Parser):
-    VALID_SOURCE = os.path.join(BASE_DIR, 'mosecom_air/api/test/valid.json')
+    VALID_SOURCE = os.path.join(BASE_DIR, 'api/test/valid.json')
 
     def parse(self, json):
         return parse_json(json)
