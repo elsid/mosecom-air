@@ -26,7 +26,7 @@ def update(logger):
 
 
 def get_source_data(logger):
-    source = HtmlSource()
+    source = HtmlSource(logger)
     for station_name in source.get_stations_list():
         try:
             html = source.get_station_html(station_name)
