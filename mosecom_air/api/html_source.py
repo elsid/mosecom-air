@@ -1,7 +1,6 @@
 # coding: utf-8
 
-import os
-
+from os.path import join
 from httplib import HTTPConnection, OK
 from pyquery import PyQuery
 
@@ -39,5 +38,4 @@ class HtmlSource(object):
                     .map(lambda i, v: v.replace(self.STATION_URL_PREFIX, '')))
 
     def get_station_html(self, station):
-        return self.request(self.STATION_URL_PREFIX
-                            + os.path.join(station, self.TABLE))
+        return self.request(join(self.STATION_URL_PREFIX, station, self.TABLE))
