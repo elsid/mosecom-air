@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import re
+
 from os.path import join
 from httplib import HTTPConnection, OK
 from pyquery import PyQuery
@@ -17,6 +19,7 @@ class HtmlSource(object):
     BASE_URL = '/air/air-today/'
     STATION_URL_PREFIX = '/air/air-today/station/'
     TABLE = 'table.html'
+    STATION_NAME_RE = re.compile(STATION_URL_PREFIX + r'([^/]*)')
 
     def __init__(self, logger=None, host=None, user_agent=None):
         self.headers = {'User-Agent': (user_agent if user_agent is not None
@@ -39,7 +42,7 @@ class HtmlSource(object):
         return list(PyQuery(response)('a')
                     .map(lambda i, v: PyQuery(v).attr('href'))
                     .filter(lambda i, v: v.startswith(self.STATION_URL_PREFIX))
-                    .map(lambda i, v: v.replace(self.STATION_URL_PREFIX, '')))
+                    .map(lambda i, v: self.STATION_NAME_RE.match(v).group(1)))
 
     def get_station_html(self, station):
         return self.request(join(self.STATION_URL_PREFIX, station, self.TABLE))
