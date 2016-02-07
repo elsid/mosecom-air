@@ -1,8 +1,6 @@
 id -u mosecom-air || useradd -rs /usr/sbin/nologin mosecom-air
-mkdir -p /var/log/mosecom-air /var/run/mosecom-air
-chown -R mosecom-air:mosecom-air /var/log/mosecom-air /var/run/mosecom-air
-mkdir -p /var/run/mosecom-air
-chown -R mosecom-air:mosecom-air /var/run/mosecom-air
+mkdir -p /var/log/mosecom-air
+chown mosecom-air:mosecom-air /var/log/mosecom-air
 mkdir -p /var/log/nginx/mosecom-air
 chown -R www-data:www-data /var/log/nginx/mosecom-air
 /etc/init.d/mosecom-air stop

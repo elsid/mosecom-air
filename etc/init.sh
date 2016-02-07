@@ -4,7 +4,8 @@ PORT=13711
 LOG=/var/log/mosecom-air/mosecom-air.log
 DESC='Mosecom air web service'
 NAME=mosecom-air
-PIDFILE=/var/run/mosecom-air/${NAME}.pid
+RUNDIR=/var/run/mosecom-air
+PIDFILE=${RUNDIR}/${NAME}.pid
 DAEMON=/usr/bin/python
 MANAGE=/usr/bin/mosecom-air-manage
 DAEMON_ARGS="${MANAGE} runfcgi method=prefork host=127.0.0.1 port=${PORT} \
@@ -16,6 +17,8 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 . /lib/lsb/init-functions
 
 do_start() {
+    mkdir -p ${RUNDIR}
+    chown ${NAME}:${NAME} ${RUNDIR}
     ps aux | fgrep ${DAEMON} | fgrep ${MANAGE} > /dev/null 2>&1 && return 1
     start-stop-daemon --start --quiet --pidfile ${PIDFILE} --chuid ${NAME} \
         --exec ${DAEMON} ${DAEMON_ARGS} || return 2
