@@ -42,37 +42,38 @@ def validate_form(form):
     return form
 
 
-def handle_exception(logger, error):
+def handle_exception(request_id, logger, error):
     logger.error('class=[%s] reason=[%s]', type(error).__name__,
                  make_one_line(error))
     if settings.DEBUG:
         raise error
-    return Response(dict(status=error, message='internal error'),
+    return Response(dict(id=request_id, status=error, message='internal error'),
                     status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def handle_object_does_not_exists(logger, error):
+def handle_object_does_not_exists(request_id, logger, error):
     logger.warning('class=[%s] reason=[%s]', type(error).__name__,
                    make_one_line(error))
-    return Response(dict(status='error', message=str(error)),
+    return Response(dict(id=request_id, status='error', message=str(error)),
                     status=HTTP_404_NOT_FOUND)
 
 
-def handle_invalid_form(logger, error):
+def handle_invalid_form(request_id, logger, error):
     logger.warning('class=[%s] reason=[%s]', type(error).__name__,
                    make_one_line(error))
-    return Response(dict(status='error', message=str(error),
-                         errors=error.errors), status=HTTP_400_BAD_REQUEST)
+    return Response(dict(id=request_id, status='error', message=str(error),
+                         errors=error.errors),
+                    status=HTTP_400_BAD_REQUEST)
 
 
 @make_logger
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def ping(_, logger):
+def ping(request, logger):
     try:
         return Response(dict(status='ok'))
     except Exception as error:
-        return handle_exception(logger, error)
+        return handle_exception(request.META['X-Request-UUID'], logger, error)
 
 
 @make_logger
@@ -80,7 +81,7 @@ def ping(_, logger):
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def stations(_, logger, substance=None):
+def stations(request, logger, substance=None):
     try:
         stations = Station.objects.all()
         if substance is not None:
@@ -93,9 +94,10 @@ def stations(_, logger, substance=None):
             stations = Station.objects.filter(id__in=stations_ids)
         return Response(dict(stations.values_list('name', 'alias')))
     except ObjectDoesNotExist as error:
-        return handle_object_does_not_exists(logger, error)
+        return handle_object_does_not_exists(request.META['X-Request-UUID'],
+                                             logger, error)
     except Exception as error:
-        return handle_exception(logger, error)
+        return handle_exception(request.META['X-Request-UUID'], logger, error)
 
 
 @make_logger
@@ -103,7 +105,7 @@ def stations(_, logger, substance=None):
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def substances(_, logger, station=None):
+def substances(request, logger, station=None):
     try:
         substances = Substance.objects.all()
         if station is not None:
@@ -114,9 +116,10 @@ def substances(_, logger, station=None):
             substances = Substance.objects.filter(id__in=substances_ids)
         return Response(dict(substances.values_list('name', 'alias')))
     except ObjectDoesNotExist as error:
-        return handle_object_does_not_exists(logger, error)
+        return handle_object_does_not_exists(request.META['X-Request-UUID'],
+                                             logger, error)
     except Exception as error:
-        return handle_exception(logger, error)
+        return handle_exception(request.META['X-Request-UUID'], logger, error)
 
 
 @make_logger
@@ -124,11 +127,11 @@ def substances(_, logger, station=None):
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def units(_, logger):
+def units(request, logger):
     try:
         return Response(dict(Unit.objects.values_list()))
     except Exception as error:
-        return handle_exception(logger, error)
+        return handle_exception(request.META['X-Request-UUID'], logger, error)
 
 
 def mean(values):
@@ -178,6 +181,7 @@ def measurements(request, logger):
         max_interval = settings.MAX_MEASUREMENTS_INTERVAL
         if data['finish'] - data['start'] > max_interval:
             return Response(dict(
+                id=request.META['X-Request-UUID'],
                 status='error',
                 message=('requested interval greater than %s hours'
                          % int(max_interval.total_seconds() / 3600))
@@ -201,23 +205,25 @@ def measurements(request, logger):
             } for performed, value in sorted(reduced, key=lambda p: p[0])]
         return Response(result)
     except InvalidForm as error:
-        return handle_invalid_form(logger, error)
+        return handle_invalid_form(request.META['X-Request-UUID'], logger,
+                                   error)
     except ObjectDoesNotExist as error:
-        return handle_object_does_not_exists(logger, error)
+        return handle_object_does_not_exists(request.META['X-Request-UUID'],
+                                             logger, error)
     except Exception as error:
-        return handle_exception(logger, error)
+        return handle_exception(request.META['X-Request-UUID'], logger, error)
 
 
 @make_logger
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def update(_, logger):
+def update(request, logger):
     try:
         update_data(logger)
         return Response(dict(status='done'))
     except Exception as error:
-        return handle_exception(logger, error)
+        return handle_exception(request.META['X-Request-UUID'], logger, error)
 
 
 class AddForm(forms.Form):
@@ -236,9 +242,10 @@ def add(request, logger):
         add_data(data['station'], parse_json(data['json_data']))
         return Response(dict(status='done'))
     except InvalidForm as error:
-        return handle_invalid_form(logger, error)
+        return handle_invalid_form(request.META['X-Request-UUID'], logger,
+                                   error)
     except Exception as error:
-        return handle_exception(logger, error)
+        return handle_exception(request.META['X-Request-UUID'], logger, error)
 
 
 @make_logger
@@ -246,15 +253,16 @@ def add(request, logger):
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def interval(_, logger):
+def interval(request, logger):
     try:
         result = Measurement.objects.aggregate(start=Min('performed'),
                                                finish=Max('performed'))
         return Response(result)
     except ObjectDoesNotExist as error:
-        return handle_object_does_not_exists(logger, error)
+        return handle_object_does_not_exists(request.META['X-Request-UUID'],
+                                             logger, error)
     except Exception as error:
-        return handle_exception(logger, error)
+        return handle_exception(request.META['X-Request-UUID'], logger, error)
 
 FUNCTIONS = {
     'first': 'Первое',
@@ -270,8 +278,8 @@ FUNCTIONS = {
 @gzip_page
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
-def functions(_, logger):
+def functions(request, logger):
     try:
         return Response(FUNCTIONS)
     except Exception as error:
-        return handle_exception(logger, error)
+        return handle_exception(request.META['X-Request-UUID'], logger, error)
