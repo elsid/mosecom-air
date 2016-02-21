@@ -47,22 +47,22 @@ def handle_exception(logger, error):
                  make_one_line(error))
     if settings.DEBUG:
         raise error
-    return Response({'status': 'error', 'message': 'internal error'},
+    return Response(dict(status=error, message='internal error'),
                     status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def handle_object_does_not_exists(logger, error):
     logger.warning('class=[%s] reason=[%s]', type(error).__name__,
                    make_one_line(error))
-    return Response({'status': 'error', 'message': str(error)},
+    return Response(dict(status='error', message=str(error)),
                     status=HTTP_404_NOT_FOUND)
 
 
 def handle_invalid_form(logger, error):
     logger.warning('class=[%s] reason=[%s]', type(error).__name__,
                    make_one_line(error))
-    return Response({'status': 'error', 'message': str(error),
-                     'errors': error.errors}, status=HTTP_400_BAD_REQUEST)
+    return Response(dict(status='error', message=str(error),
+                         errors=error.errors), status=HTTP_400_BAD_REQUEST)
 
 
 @make_logger
@@ -70,7 +70,7 @@ def handle_invalid_form(logger, error):
 @renderer_classes((JSONRenderer,))
 def ping(_, logger):
     try:
-        return Response({'status': 'ok'})
+        return Response(dict(status='ok'))
     except Exception as error:
         return handle_exception(logger, error)
 
@@ -177,11 +177,11 @@ def measurements(request, logger):
         data = form.cleaned_data
         max_interval = settings.MAX_MEASUREMENTS_INTERVAL
         if data['finish'] - data['start'] > max_interval:
-            return Response({
-                'status': 'error',
-                'message': 'requested interval greater than %s hours'
-                           % int(max_interval.total_seconds() / 3600)
-            }, status=HTTP_400_BAD_REQUEST)
+            return Response(dict(
+                status='error',
+                message=('requested interval greater than %s hours'
+                         % int(max_interval.total_seconds() / 3600))
+            ), status=HTTP_400_BAD_REQUEST)
         station = Station.objects.get(name=data['station'])
         substance = Substance.objects.get(name=data['substance'])
         unit = Unit.objects.get(id=data['unit'])
@@ -215,7 +215,7 @@ def measurements(request, logger):
 def update(_, logger):
     try:
         update_data(logger)
-        return Response({'status': 'done'})
+        return Response(dict(status='done'))
     except Exception as error:
         return handle_exception(logger, error)
 
@@ -234,7 +234,7 @@ def add(request, logger):
         form = validate_form(AddForm(request.POST))
         data = form.cleaned_data
         add_data(data['station'], parse_json(data['json_data']))
-        return Response({'status': 'done'})
+        return Response(dict(status='done'))
     except InvalidForm as error:
         return handle_invalid_form(logger, error)
     except Exception as error:
