@@ -6,7 +6,7 @@ from os.path import dirname, join
 from sys import argv
 from datetime import timedelta
 
-CONFIG_FILE = '/etc/mosecom-air.conf'
+CONFIG_FILE = 'etc/mosecom-air.conf'
 CONFIG = yaml.load(open(CONFIG_FILE))
 BASE_DIR = dirname(__file__)
 SECRET_KEY = CONFIG['secret_key']
